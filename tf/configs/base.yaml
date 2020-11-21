@@ -1,0 +1,68 @@
+%YAML 1.2
+---
+name: 'tjena5'                  # ideally no spaces
+gpu: 1                                 # gpu id to process on
+
+dataset: 
+  num_chunks: 10000000                   # newest nof chunks to parse
+  allow_less_chunks: true
+  train_ratio: 0.90                    # trainingset ratio
+  # For separated test and train data.
+  input_train: '/home/ssonning/Documents/t60/*/' # supports glob
+  input_test: '/home/ssonning/Documents/t60/*/'  # supports glob
+  # For a one-shot run with all data in one directory.
+  #input: '/work/lc0/data/'
+  train_workers: 16
+  test_workers: 8
+
+training:
+    swa: true
+    swa_output: true
+    swa_steps: 50
+    swa_max_n: 10
+    mask_legal_moves: true
+    renorm: true
+    renorm_max_r: 1.0
+    renorm_max_d: 0.0
+    q_ratio: 0.2
+    max_grad_norm: 3.7
+    batch_size: 512                   # training batch
+    num_batch_splits: 1
+    test_steps: 1000                    # eval test set values after this many steps
+    num_test_positions: 20000
+    train_avg_report_steps: 100        # training reports its average values after this many steps.
+    total_steps: 370000                  # terminate after these steps
+    warmup_steps: 2000
+    checkpoint_steps: 2000          # optional frequency for checkpointing before finish
+    shuffle_size: 50000               # size of the shuffle buffer
+    lr_values:                         # list of learning rates
+        - 0.3
+        - 0.1
+        - 0.03
+        - 0.01
+        - 0.003
+        - 0.001
+        - 0.0003
+        - 0.0001
+    lr_boundaries:                     # list of boundaries
+        - 30000
+        - 80000
+        - 130000
+        - 190000
+        - 250000
+        - 320000
+        - 400000
+    policy_loss_weight: 1.0            # weight of policy loss
+    value_loss_weight: 0.5            # weight of value loss
+    moves_left_loss_weight: 0.2
+    path: '/home/ssonning/Documents/networks/'         # network storage dir
+    precision: 'half'
+    trainstop_path: '/home/ssonning/Documents/networks/trainstop'
+    # lookahead_optimizer: true
+    # gammareg: true
+
+model:
+  filters: 256
+  residual_blocks: 20
+  se_ratio: 8
+...
