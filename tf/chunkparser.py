@@ -26,6 +26,7 @@ import struct
 import tensorflow as tf
 import unittest
 import gzip
+import sys
 from select import select
 
 V5_VERSION = struct.pack('i', 5)
@@ -218,9 +219,10 @@ class ChunkParser:
             float32 best_m (4 bytes)
             float32 plies_left (4 bytes)
         """
-        (ver, input_format, probs, planes, us_ooo, us_oo, them_ooo, them_oo,
+        tjosan = (ver, input_format, probs, planes, us_ooo, us_oo, them_ooo, them_oo,
          stm, rule50_count, dep_ply_count, winner, root_q, best_q, root_d,
          best_d, root_m, best_m, plies_left) = self.v5_struct.unpack(content)
+
         # v3/4 data sometimes has a useful value in dep_ply_count, so copy that over if the new ply_count is not populated.
         if plies_left == 0:
             plies_left = dep_ply_count
@@ -285,7 +287,8 @@ class ChunkParser:
 
         best_q_w = 0.5 * (1.0 - best_d + best_q)
         best_q_l = 0.5 * (1.0 - best_d - best_q)
-        assert -1.0 <= best_q <= 1.0 and 0.0 <= best_d <= 1.0
+        best_q = min(max(best_q, -1), 1.0)
+        best_d = min(max(best_d, 0), 1.0)
         best_q = struct.pack('fff', best_q_w, best_d, best_q_l)
 
         return (planes, probs, winner, best_q, plies_left)

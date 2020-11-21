@@ -310,7 +310,7 @@ class TFProcess:
 
             def moves_left_loss(target, output):
                 # Scale the loss to similar range as other losses.
-                scale = 20.0
+                scale = 1.0
                 target = target / scale
                 output = tf.cast(output, tf.float32) / scale
                 huber = tf.keras.losses.Huber(10.0 / scale)
